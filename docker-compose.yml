@@ -34,8 +34,9 @@ services:
     build: .
     ports:
       - "8000:8000"
+    env_file: .env
     environment:
-      ENVIRONMENT: production
+      ENVIRONMENT: development
       DATABASE_URL: postgresql+asyncpg://watchtower:watchtower@postgres:5432/watchtower
       DATABASE_URL_SYNC: postgresql+psycopg2://watchtower:watchtower@postgres:5432/watchtower
       REDIS_URL: redis://redis:6379/0
@@ -51,8 +52,9 @@ services:
   celery-worker:
     build: .
     command: celery -A app.workers.celery_app worker --loglevel=info -Q watchtower
+    env_file: .env
     environment:
-      ENVIRONMENT: production
+      ENVIRONMENT: development
       DATABASE_URL_SYNC: postgresql+psycopg2://watchtower:watchtower@postgres:5432/watchtower
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
@@ -72,8 +74,9 @@ services:
   listener:
     build: .
     command: python -m app.listeners.redis_expiry
+    env_file: .env
     environment:
-      ENVIRONMENT: production
+      ENVIRONMENT: development
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       DATABASE_URL_SYNC: postgresql+psycopg2://watchtower:watchtower@postgres:5432/watchtower

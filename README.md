@@ -124,6 +124,31 @@ Circuit breakers trip after repeated notification failures and auto-recover.
 
 ---
 
+## Production deployment
+
+Local Docker uses `ENVIRONMENT=development` (Swagger at `/docs`). For production:
+
+1. Copy `.env.production.example` → `.env` and fill secrets.
+2. Run: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`
+3. Read **[DEPLOYMENT.md](DEPLOYMENT.md)** for Render, Railway, Fly.io, and HTTPS.
+
+Production hardening includes:
+
+- Boot-time rejection of weak API keys and `CORS_ORIGINS=*`
+- `/docs` disabled by default (`ENABLE_DOCS=true` to override)
+- Security headers, request IDs, ping rate limiting
+- Container healthchecks and `restart: unless-stopped`
+- DB connection pooling
+
+### Portfolio checklist
+
+- [ ] Deploy API + worker + listener (see DEPLOYMENT.md)
+- [ ] Add live `/health` URL to README
+- [ ] Record a 60s demo: register service → ping → miss heartbeat → incident
+- [ ] Pin GitHub repo with CI badge passing
+
+---
+
 ## CI/CD
 
 GitHub Actions (`.github/workflows/ci.yml`):

@@ -1,16 +1,21 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Header, HTTPException, Request, status
 
 from app.api.deps import RedisDep, SessionDep
+from app.core.config import get_settings
+from app.core.rate_limit import limiter
 from app.models.service import ServiceRead
 from app.services.heartbeat import process_ping
 
 router = APIRouter(prefix="/ping", tags=["ping"])
+_settings = get_settings()
 
 
 @router.post("/{service_id}", response_model=ServiceRead)
+@limiter.limit(_settings.ping_rate_limit)
 async def ping_service(
+    request: Request,
     service_id: UUID,
     session: SessionDep,
     redis: RedisDep,

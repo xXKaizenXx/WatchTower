@@ -8,11 +8,15 @@ from app.models import Incident, Service  # noqa: F401 — register metadata
 
 settings = get_settings()
 
-engine = create_async_engine(
-    settings.database_url,
-    echo=settings.debug,
-    pool_pre_ping=True,
-)
+_engine_kwargs: dict = {
+    "echo": settings.debug,
+    "pool_pre_ping": True,
+}
+if settings.database_url.startswith("postgresql"):
+    _engine_kwargs["pool_size"] = settings.db_pool_size
+    _engine_kwargs["max_overflow"] = settings.db_max_overflow
+
+engine = create_async_engine(settings.database_url, **_engine_kwargs)
 
 async_session_factory = async_sessionmaker(
     engine,
